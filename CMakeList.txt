@@ -1,0 +1,80 @@
+cmake_minimum_required(VERSION 3.25)
+
+project(
+  linux-resource-monitor
+  VERSION 0.1
+  DESCRIPTION "Linux Resource Monitor"
+  LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(OPENGL_INCLUDE_DIR /usr/include)
+set(OPENGL_LIBRARY /usr/lib/x86_64-linux-gnu/libGL.so)
+
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+
+add_library(
+  imgui STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_draw.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_widgets.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_tables.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_demo.cpp)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui)
+
+add_library(
+  backend STATIC ${CMAKE_CURRENT_SOURCE_DIR}/backend/imgui_impl_glfw.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/backend/imgui_impl_opengl3.cpp)
+target_include_directories(backend PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/backend
+                                          ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui)
+target_link_libraries(backend PUBLIC imgui glfw ${OPENGL_LIBRARY})
+
+add_library(
+  implot STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/implot/implot.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/implot/implot_items.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib/implot/implot_demo.cpp)
+target_include_directories(implot PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/implot
+                                         ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui)
+target_link_libraries(implot PUBLIC imgui)
+
+add_executable(
+  linux-resource-monitor
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/LRM/Application.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/ProcessManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/ProcessParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/LRM/ProcessList.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/CpuManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/CpuParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/MemoryParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/MemoryManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/NetParser.cpp)
+
+target_include_directories(
+  linux-resource-monitor
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/LRM
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/Core
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/Models)
+
+target_link_libraries(linux-resource-monitor PUBLIC imgui backend glfw
+                                                    ${OPENGL_LIBRARY} implot)
+
+# test
+add_executable(
+  test
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/ProcessManager.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/ProcessParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/MemoryParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/CpuParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/CpuManager.cpp)
+
+target_include_directories(
+  test
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/Core
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/Models)

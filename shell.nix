@@ -4,13 +4,13 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    gcc
-    clang
     cmake
+    gcc
     pkg-config
-
-    # GUI/graphics dependencies
     glfw
+    libGL
+    libGLU
+    # GUI/graphics dependencies
     wayland
     # glew
     # libGL
@@ -25,9 +25,10 @@ pkgs.mkShell {
     # SDL2
     # freetype
     # fontconfig
+    premake5
   ];
 
   shellHook = ''
-    echo "test"
+    nvim
   '';
 }

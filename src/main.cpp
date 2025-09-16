@@ -12,6 +12,8 @@
 #include "Application.h"
 #include "Cpu.h"
 #include "CpuManager.h"
+#include "MemoryManager.h"
+#include "NetworkManager.h"
 #include "ProcessManager.h"
 
 static void glfw_error_callback(int error, const char* description) {
@@ -73,6 +75,12 @@ int main(int, char**) {
 
     static CPU s_CpuManager;
     s_CpuManager.start_();
+
+    static Memory s_MemoryManager;
+    s_MemoryManager.start_();
+
+    static NetworkManager s_NetworkManager;
+    s_NetworkManager.start_();
 
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -169,6 +177,17 @@ int main(int, char**) {
         }
         ImGui::End();
 
+        // MemoryUI
+        if (ImGui::Begin("Memory")) {
+            Application::MemoryUI(s_MemoryManager);
+        }
+        ImGui::End();
+
+        // Network UI
+        // if (ImGui::Begin("Network")) {
+        //     Application::NetworkUI(s_NetworkManager);
+        // }
+        ImGui::End();
         // Render
         ImGui::Render();
         int display_w, display_h;

@@ -34,6 +34,7 @@ std::vector<Core> GetCpu() {
         }
         cpu.emplace_back(core);
     }
+    stream.close();
 
     return cpu;
 }

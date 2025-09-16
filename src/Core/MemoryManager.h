@@ -1,19 +1,22 @@
+#pragma once
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <thread>
+#include <unordered_map>
 
-#include "Mem.h"
 class Memory {
    public:
     Memory();
     ~Memory();
 
     void update_();
-    Mem GetMem() const;
+    void start_();
+    const std::unordered_map<std::string, long> GetMemoryUsage() const;
 
    private:
-    Mem m_Mememory;
-    std::atomic<bool> running;
+    std::unordered_map<std::string, long> m_Memory;
+    std::atomic<bool> m_running;
     mutable std::mutex m_MemoryMutex;
     std::thread m_MemoryThread;
 };

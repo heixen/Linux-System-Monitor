@@ -2,9 +2,11 @@
 
 #include <array>
 #include <csignal>
-#include <iostream>
+#include <vector>
 
 #include "CpuManager.h"
+#include "MemoryManager.h"
+#include "NetworkManager.h"
 #include "Process.h"
 #include "ProcessList.h"
 #include "imgui.h"
@@ -106,9 +108,8 @@ void CpuUI(CPU &cpu) {
     t += dt;
     sample_timer += dt;
 
-    ImPlotAxisFlags axisflags = ImPlotAxisFlags_NoGridLines |
-                                ImPlotAxisFlags_NoHighlight |
-                                ImPlotAxisFlags_NoTickMarks;
+    ImPlotAxisFlags axisflags =
+        ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks;
 
     ImGui::BeginChild("Cpu", ImVec2(0, 0), ImGuiChildFlags_Border);
 
@@ -127,7 +128,6 @@ void CpuUI(CPU &cpu) {
             sample_timer = 0.0f;
             time[index] = t;
             usage[index] = cpuUsage;
-            std::cout << cpuUsage << "\n";
             index = (index + 1) % BUFFER_SIZE;
             count = std::min(count + 1, BUFFER_SIZE);
         }
@@ -145,6 +145,75 @@ void CpuUI(CPU &cpu) {
     ImGui::EndChild();
 }
 
-void MemoryUI() {}
+void MemoryUI(Memory &memory) {
+    static float t = 0;
+    static float sample_timer = 0.0f;
+    static constexpr int BUFFERSIZE = 3600;
+    static std::array<float, BUFFERSIZE> usage;
+    static std::array<float, BUFFERSIZE> time;
+    static int index = 0;
+    static int count = 0;
+
+    float dt = ImGui::GetIO().DeltaTime;
+    t += dt;
+    sample_timer += dt;
+
+    static float memTotal = 0.0f;
+    static float memAvail = 0.0f;
+
+    static bool firstTime = true;
+    if (firstTime) {
+        auto memT = memory.GetMemoryUsage();
+        if (memT.count("MemTotal"))
+            memTotal = memT["MemTotal"];
+        else {
+            memTotal = 1;
+            memAvail = 0;
+        }
+        firstTime = false;
+    }
+
+    if (ImGui::BeginChild("Memory", ImVec2(0, 0), ImGuiChildFlags_Border)) {
+        ImPlotAxisFlags axisflags =
+            ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks;
+
+        if (ImPlot::BeginPlot("Memory", ImVec2(-1, -1),
+                              ImPlotFlags_NoLegend | ImPlotFlags_NoFrame)) {
+            ImPlot::SetupAxis(ImAxis_X1, nullptr, axisflags);
+            ImPlot::SetupAxis(ImAxis_Y1, nullptr,
+                              axisflags | ImPlotAxisFlags_Opposite);
+
+            if (sample_timer >= 1.0f) {
+                auto mem = memory.GetMemoryUsage();
+                sample_timer = 0.0f;
+                if (mem.count("MemTotal") && mem.count("MemAvailable")) {
+                    time[index] = t;
+                    memTotal = static_cast<float>(mem["MemTotal"]) / 1048576.0f;
+                    memAvail =
+                        static_cast<float>(mem["MemAvailable"]) / 1048576.0f;
+                    usage[index] = memTotal - memAvail;
+                    index = (index + 1) % BUFFERSIZE;
+                    count = std::min(count + 1, BUFFERSIZE);
+                } else {
+                    memTotal = memTotal ? memTotal : 1.0f;
+                    memAvail = 0.0f;
+                }
+            }
+
+            ImPlot::SetupAxisLimits(ImAxis_X1, t - 60.0f, t - 0.9,
+                                    ImPlotCond_Always);
+            static float ymax =
+                (memTotal > 0) ? (float)memTotal / 1048576.0f : 1;
+            ImPlot::SetupAxisLimits(ImAxis_Y1, 0, ymax);
+
+            ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+            ImPlot::PlotShaded("mem", time.data(), usage.data(), count, 0, 0);
+            ImPlot::PopStyleVar();
+            ImPlot::PlotLine("mem", time.data(), usage.data(), count, 0, 0);
+            ImPlot::EndPlot();
+        }
+    }
+    ImGui::EndChild();
+}
 
 };  // namespace Application
