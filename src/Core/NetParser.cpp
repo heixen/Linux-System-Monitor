@@ -28,8 +28,9 @@ std::vector<NetworkInterface> GetNetworkInfo() {
         unsigned long rxBytes;
         unsigned long txBytes;
 
-        const char* name = entry->d_name;
-        if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+        std::string name = entry->d_name;
+
+        if (name == "." || name == "..")
             continue;
 
         std::ifstream rx("/sys/class/net/" + std::string(name) +

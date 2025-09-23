@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "Process.h"
@@ -26,6 +27,7 @@ std::vector<Process> GetProcess() {
             unsigned int resident_mem;
             unsigned int virtual_mem;
             unsigned int shared_mem;
+            int thread_count;
 
             int pid = atoi(entry->d_name);
 
@@ -60,9 +62,21 @@ std::vector<Process> GetProcess() {
                 resident_mem = res;
                 shared_mem = shared;
             }
+            std::ifstream status("/proc/" + std::string(entry->d_name) +
+                                 "/status");
+            if (status.is_open()) {
+                std::string line;
+                while (std::getline(status, line)) {
+                    if (line.find("Threads:") == 0) {
+                        thread_count =
+                            std::stoi(line.substr(line.find(':') + 1));
+                    }
+                }
+            }
 
             processes.emplace_back(pid, std::move(_program), std::move(_cmd),
-                                   resident_mem, virtual_mem, shared_mem);
+                                   resident_mem, virtual_mem, shared_mem,
+                                   thread_count);
         }
     }
     closedir(dir);

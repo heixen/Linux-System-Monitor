@@ -6,10 +6,10 @@
 
 #include "Network.h"
 
-class NetworkManager {
+class Network {
    public:
-    NetworkManager();
-    ~NetworkManager();
+    Network();
+    ~Network();
 
     void start_();
     void update_();
@@ -19,6 +19,6 @@ class NetworkManager {
    private:
     std::vector<NetworkInterface> m_interface;
     std::atomic<bool> m_running = false;
-    std::mutex m_NetworkManagerMutex;
-    std::thread m_NetworkManagerThreads;
+    std::mutex m_NetworkMutex;
+    std::thread m_NetworkThreads;
 };

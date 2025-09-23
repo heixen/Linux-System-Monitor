@@ -7,38 +7,37 @@
 #include <vector>
 
 #include "NetParser.h"
-#include "NetworkManager.h"
 
-NetworkManager::NetworkManager() {}
+Network::Network() {}
 
-NetworkManager::~NetworkManager() {
+Network::~Network() {
     m_running = false;
-    if (m_NetworkManagerThreads.joinable())
-        m_NetworkManagerThreads.join();
+    if (m_NetworkThreads.joinable())
+        m_NetworkThreads.join();
 }
 
-void NetworkManager::start_() {
+void Network::start_() {
     if (m_running)
         return;
     m_running = true;
 
-    m_NetworkManagerThreads = std::thread(&NetworkManager::update_, this);
+    m_NetworkThreads = std::thread(&Network::update_, this);
     std::cout << "rah\n";
 }
 
-void NetworkManager::update_() {
+void Network::update_() {
     using namespace std::literals::chrono_literals;
     while (m_running) {
         std::vector<NetworkInterface> interface = GetNetworkInfo();
         {
-            std::lock_guard<std::mutex> lock(m_NetworkManagerMutex);
+            std::lock_guard<std::mutex> lock(m_NetworkMutex);
             m_interface = interface;
         }
         std::this_thread::sleep_for(1s);
     }
 };
 
-std::vector<NetworkInterface> NetworkManager::GetNetwork() {
-    std::lock_guard<std::mutex> lock(m_NetworkManagerMutex);
+std::vector<NetworkInterface> Network::GetNetwork() {
+    std::lock_guard<std::mutex> lock(m_NetworkMutex);
     return m_interface;
 }

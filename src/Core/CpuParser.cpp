@@ -20,18 +20,17 @@ std::vector<Core> GetCpu() {
     }
 
     while (getline(stream, line)) {
-        int i = 0;
         std::istringstream iss(line);
         iss >> _;
 
         if (_ == "intr") {
             break;
         }
-        // std::cout << line << std::endl;
         Core core;
-        for (int i = 0; i < 10; i++) {
-            iss >> core.stat[i];
-        }
+        iss >> core.user >> core.nice >> core.system >> core.idle >>
+            core.iowait >> core.irq >> core.softirq >> core.steal >>
+            core.guest >> core.guest_nice;
+
         cpu.emplace_back(core);
     }
     stream.close();

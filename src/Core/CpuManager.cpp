@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 
+#include <cstdint>
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -35,9 +36,14 @@ void CPU::update_() {
         std::vector<Core> cpu = GetCpu();
         {
             std::lock_guard<std::mutex> lock(m_CpuMutex);
+            std::vector<Core> core;
+
+            if (!cpu.empty()) {
+                core.assign(cpu.begin() + 1, cpu.end());
+            }
+
             m_cpu.swap(cpu);
-            // std::vector<Core> core(cpu.begin() + 1, cpu.end());
-            // m_core.swap(core);
+            m_core.swap(core);
         }
         std::this_thread::sleep_for(1s);
     }
@@ -58,31 +64,33 @@ float CPU::GetCpuPercentage() {
     if (c.empty())
         return 0.0f;
 
-    float cpuTotal = 0, idle = 0;
+    Core cpu = c[0];
 
-    idle = c[0].stat[3] + c[0].stat[4];
+    float cpuTotal = 0.0f, idle = 0;
 
-    for (int &i : c[0].stat) {
-        cpuTotal += i;
-    }
+    idle = cpu.idle + cpu.iowait;
+
+    cpuTotal = cpu.user + cpu.nice + cpu.system + cpu.idle + cpu.iowait +
+               cpu.irq + cpu.softirq + cpu.steal + cpu.guest + cpu.guest_nice;
     // initial r
-    if (this->m_total == 0) {
-        this->m_total = cpuTotal;
-        this->m_idle = idle;
+    if (m_total == 0) {
+        m_total = cpuTotal;
+        m_idle = idle;
 
         return 0.0f;
     }
     // calculate
-    float totalDelta = cpuTotal - this->m_total;
-    float idleDelta = idle - this->m_idle;
+    uint64_t totalDelta = cpuTotal - m_total;
+    uint64_t idleDelta = idle - m_idle;
 
-    this->m_total = cpuTotal;
-    this->m_idle = idle;
+    m_total = cpuTotal;
+    m_idle = idle;
 
     if (totalDelta <= 0.0f)
         return 0.0f;
 
-    float usage = (totalDelta - idleDelta) / totalDelta * 100;
+    float usage =
+        static_cast<float>(totalDelta - idleDelta) / totalDelta * 100.0f;
 
     return usage;
 }

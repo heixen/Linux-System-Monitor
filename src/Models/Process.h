@@ -37,16 +37,18 @@ struct Process {
     unsigned int resident_mem;
     unsigned int virtual_mem;
     unsigned int shared_mem;
+    int thread;
 
     // ProcessStat stat;
 
     Process(int pid, const std::string &program, const std::string &cmd,
             unsigned int resident_mem, unsigned int virtual_mem,
-            unsigned int shared_mem)
+            unsigned int shared_mem, int thread)
         : pid(pid),
           program(std::move(program)),
           cmd(std::move(cmd)),
           resident_mem(resident_mem),
           virtual_mem(virtual_mem),
-          shared_mem(shared_mem) {}
+          shared_mem(shared_mem),
+          thread(thread) {}
 };

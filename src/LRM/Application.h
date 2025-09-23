@@ -11,5 +11,6 @@ namespace Application {
 void ProcessUI(std::vector<Process>& processes);
 void CpuUI(CPU& cpu);
 void MemoryUI(Memory& memory);
-void NetworkUI(NetworkManager& network);
+void NetworkUI(Network& network);
+void SetupUILayout();
 };  // namespace Application
