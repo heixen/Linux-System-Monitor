@@ -65,6 +65,7 @@ add_executable(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/ProcessParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/NetworkManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/NetParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Core/Manager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LRM/Application.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/LRM/ProcessList.cpp)
 target_include_directories(
@@ -92,4 +93,3 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -g)
 # ${OPENGL_INCLUDE_DIR} ) target_link_libraries(test PRIVATE imgui implot
 # ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES}) target_compile_options(test PRIVATE
 # -Wall -Wextra -g)
-
