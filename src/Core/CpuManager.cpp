@@ -4,62 +4,36 @@
 #include <unistd.h>
 
 #include <cstdint>
-#include <iostream>
-#include <thread>
+#include <mutex>
 #include <vector>
 
 #include "Cpu.h"
 #include "CpuParser.h"
 
-CPU::CPU() : m_running(false), m_total(0), m_idle(0) {}
-
-void CPU::start_() {
-    if (m_running)
-        return;
-
-    m_CpuThread = std::thread(&CPU::update_, this);
-    std::cout << "anh iu\n";
+CPU::CPU() {
+    start();
 }
 
-CPU::~CPU() {
-    m_running = false;
-    if (m_CpuThread.joinable())
-        m_CpuThread.join();
-}
+void CPU::updateData() {
+    std::vector<Core> cpu = GetCpu();
+    std::vector<Core> core;
 
-void CPU::update_() {
-    using namespace std::literals::chrono_literals;
+    if (!cpu.empty())
+        core.assign(cpu.begin() + 1, cpu.end());
 
-    m_running = true;
-
-    while (m_running) {
-        std::vector<Core> cpu = GetCpu();
-        {
-            std::lock_guard<std::mutex> lock(m_CpuMutex);
-            std::vector<Core> core;
-
-            if (!cpu.empty()) {
-                core.assign(cpu.begin() + 1, cpu.end());
-            }
-
-            m_cpu.swap(cpu);
-            m_core.swap(core);
-        }
-        std::this_thread::sleep_for(1s);
-    }
+    SetData(m_cpu, cpu);
+    SetData(m_core, core);
 }
 
 std::vector<Core> CPU::GetCpuUsage() {
-    std::lock_guard<std::mutex> lock(m_CpuMutex);
-    return m_cpu;
+    return GetData(m_cpu);
 }
 std::vector<Core> CPU::GetCoreUsage() {
-    std::lock_guard<std::mutex> lock(m_CpuMutex);
-    return m_core;
+    return GetData(m_core);
 }
 
 float CPU::GetCpuPercentage() {
-    std::vector<Core> c = CPU::GetCpuUsage();
+    std::vector<Core> c = GetData(m_cpu);
 
     if (c.empty())
         return 0.0f;
@@ -72,6 +46,8 @@ float CPU::GetCpuPercentage() {
 
     cpuTotal = cpu.user + cpu.nice + cpu.system + cpu.idle + cpu.iowait +
                cpu.irq + cpu.softirq + cpu.steal + cpu.guest + cpu.guest_nice;
+
+    std::lock_guard<std::mutex> lock(m_dataMutex);
     // initial r
     if (m_total == 0) {
         m_total = cpuTotal;
@@ -93,13 +69,4 @@ float CPU::GetCpuPercentage() {
         static_cast<float>(totalDelta - idleDelta) / totalDelta * 100.0f;
 
     return usage;
-}
-
-std::vector<Core> CPU::GetCores() {
-    std::vector<Core> c = CPU::GetCpuUsage();
-
-    if (!c.empty())
-        c.erase(c.begin());
-
-    return c;
 }
