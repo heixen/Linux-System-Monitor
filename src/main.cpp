@@ -88,7 +88,6 @@ int main(int, char**) {
     s_processManager.start_();
 
     static CPU s_CpuManager;
-    s_CpuManager.start_();
 
     static Memory s_MemoryManager;
     s_MemoryManager.start_();
