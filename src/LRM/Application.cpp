@@ -17,18 +17,18 @@
 #include "implot.h"
 
 namespace Application {
-void ProcessUI(std::vector<Process> &processes) {
+void ProcessUI(std::vector<Process>& processes) {
     ImGuiWindowFlags window_flags =
         ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysVerticalScrollbar;
 
     static ImGuiTextFilter filter;
     static int selectedIndex = -1;
-    std::vector<Process *> filteredProcesses;
+    std::vector<Process*> filteredProcesses;
 
     filteredProcesses.clear();
-    for (const auto &proc : processes) {
+    for (const auto& proc : processes) {
         if (filter.PassFilter(proc.program.c_str())) {
-            filteredProcesses.push_back(const_cast<Process *>(&proc));
+            filteredProcesses.push_back(const_cast<Process*>(&proc));
         }
     }
 
@@ -50,7 +50,7 @@ void ProcessUI(std::vector<Process> &processes) {
     ImGui::End();
 }
 
-void CpuUI(CPU &cpu) {
+void CpuUI(CPU& cpu) {
     static float t = 0;
     static float sample_timer = 0.0f;
     static constexpr int BUFFER_SIZE = 3600;
@@ -99,7 +99,7 @@ void CpuUI(CPU &cpu) {
     ImGui::EndChild();
 }
 
-void MemoryUI(Memory &memory) {
+void MemoryUI(Memory& memory) {
     static float t = 0;
     static float sample_timer = 0.0f;
     static constexpr int BUFFERSIZE = 3600;
@@ -176,7 +176,7 @@ void MemoryUI(Memory &memory) {
     }
     ImGui::EndChild();
 }
-void NetworkUI(Network &network) {
+void NetworkUI(Network& network) {
     static float t = 0;
     static float sample_timer = 0.0f;
     static constexpr int BUFFERSIZE = 3600;
@@ -200,7 +200,7 @@ void NetworkUI(Network &network) {
     auto net = network.GetNetwork();
 
     if (wifi_name.empty() && !net.empty()) {
-        for (const auto &iface : net) {
+        for (const auto& iface : net) {
             if (iface.name != "lo") {
                 wifi_name = iface.name;
                 break;
@@ -229,7 +229,7 @@ void NetworkUI(Network &network) {
                 // Find Wi-Fi interface data
                 unsigned long curr_rx = 0;
                 unsigned long curr_tx = 0;
-                for (const auto &iface : net) {
+                for (const auto& iface : net) {
                     if (iface.name == wifi_name) {
                         curr_rx = iface.rx_bytes;
                         curr_tx = iface.tx_bytes;
@@ -294,7 +294,7 @@ void SetupUILayout() {
     static bool layoutInitialized = false;
 
     // Create a dockspace over the entire viewport
-    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::SetNextWindowViewport(viewport->ID);
@@ -311,6 +311,7 @@ void SetupUILayout() {
     // Add global menu bar
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("I'm")) {
+            ImGui::MenuItem("LRM", nullptr, nullptr);
             ImGui::MenuItem("Process", nullptr,
                             nullptr);  // Process window is always visible
             ImGui::MenuItem("CPU", nullptr);
