@@ -121,7 +121,7 @@ int main(int, char**) {
         // Set up the docked layout
         Application::SetupUILayout();
 
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
 
         // Process UI
         std::vector<Process> process = s_processManager.get_process();
