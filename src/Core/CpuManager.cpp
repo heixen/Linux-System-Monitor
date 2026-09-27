@@ -3,8 +3,10 @@
 
 #include <unistd.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 #include "Cpu.h"
@@ -21,8 +23,8 @@ void CPU::updateData() {
     if (!cpu.empty())
         core.assign(cpu.begin() + 1, cpu.end());
 
-    SetData(m_cpu, cpu);
-    SetData(m_core, core);
+    SetData(m_cpu, std::move(cpu));
+    SetData(m_core, std::move(core));
 }
 
 std::vector<Core> CPU::GetCpuUsage() {

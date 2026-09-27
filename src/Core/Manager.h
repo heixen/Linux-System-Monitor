@@ -3,6 +3,7 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <utility>
 
 class Manager {
    public:
@@ -14,11 +15,12 @@ class Manager {
 
    protected:
     virtual void updateData() = 0;
+    mutable std::mutex m_dataMutex;
 
     template <typename T>
-    void SetData(T& newDataMember, const T& dataMember) {
+    void SetData(T& destination, const T&& source) {
         std::lock_guard<std::mutex> lock(m_dataMutex);
-        newDataMember.swap(const_cast<T&>(dataMember));
+        destination = std::move(source);
     }
 
     template <typename T>
@@ -29,7 +31,6 @@ class Manager {
 
    private:
     void update();
-    mutable std::mutex m_dataMutex;
     std::thread m_thread;
     std::atomic<bool> m_running{false};
 };
