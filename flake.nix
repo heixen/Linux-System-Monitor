@@ -53,6 +53,8 @@
           echo "Running in Hyprland (Wayland). Use XDG_BACKEND=x11 for XWayland fallback if needed."
 
           alias gl="git log --oneline"
+
+          echo "u are using nix btw"
         '';
       };
     };
