@@ -1,7 +1,8 @@
+
 #include <fstream>
 #include <iostream>
 
-int main() {
+void GetDiskStat() {
     std::ifstream stream("/proc/diskstats");
     std::string _line;
 

@@ -3,7 +3,6 @@
 
 #include <unistd.h>
 
-#include <algorithm>
 #include <cstdint>
 #include <mutex>
 #include <utility>
