@@ -25,8 +25,8 @@ std::vector<NetworkInterface> GetNetworkInfo() {
     struct dirent* entry;
 
     while ((entry = readdir(dir)) != nullptr) {
-        unsigned long rxBytes;
-        unsigned long txBytes;
+        unsigned long rxBytes = 0;
+        unsigned long txBytes = 0;
 
         std::string name = entry->d_name;
 

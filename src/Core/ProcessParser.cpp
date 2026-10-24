@@ -24,10 +24,10 @@ std::vector<Process> GetProcess() {
             std::string _program;
             std::string _cmd;
             std::string _statm;
-            unsigned int resident_mem;
-            unsigned int virtual_mem;
-            unsigned int shared_mem;
-            int thread_count;
+            unsigned int resident_mem = 0;
+            unsigned int virtual_mem = 0;
+            unsigned int shared_mem = 0;
+            int thread_count = 0;
 
             int pid = atoi(entry->d_name);
 
